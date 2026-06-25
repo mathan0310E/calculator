@@ -24,8 +24,8 @@ class HistoryPanel extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       color: isDark
-          ? const Color(0xFF1A1A2E).withValues(alpha: 0.95)
-          : const Color(0xFFF5F5FF).withValues(alpha: 0.95),
+          ? const Color(0xFF1A1A2E).withOpacity( 0.95)
+          : const Color(0xFFF5F5FF).withOpacity( 0.95),
       child: Column(
         children: [
           Padding(
@@ -61,7 +61,7 @@ class HistoryPanel extends StatelessWidget {
                       'No calculations yet',
                       style: TextStyle(
                         color: theme.colorScheme.onSurface
-                            .withValues(alpha: 0.5),
+                            .withOpacity( 0.5),
                         fontSize: 15,
                       ),
                     ),
@@ -89,7 +89,7 @@ class HistoryPanel extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.6),
+                                        .withOpacity( 0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 4),

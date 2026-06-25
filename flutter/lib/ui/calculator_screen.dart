@@ -248,7 +248,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           color: (_isDark
                   ? const Color(0xFF2A2A5E)
                   : const Color(0xFFE8E8F5))
-              .withValues(alpha: 0.3),
+              .withOpacity( 0.3),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -274,7 +274,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       fontWeight: FontWeight.bold,
                       color: !_showSci
                           ? theme.colorScheme.onSurface
-                          : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                          : theme.colorScheme.onSurface.withOpacity( 0.5),
                     ),
                   ),
                 ),
@@ -301,7 +301,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       fontWeight: FontWeight.bold,
                       color: _showSci
                           ? theme.colorScheme.onSurface
-                          : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                          : theme.colorScheme.onSurface.withOpacity( 0.5),
                     ),
                   ),
                 ),
@@ -533,7 +533,7 @@ class _MemoryMenu extends StatelessWidget {
           Text(
             '= ${calc.current}',
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              color: theme.colorScheme.onSurface.withOpacity( 0.6),
               fontSize: 16,
             ),
           ),
@@ -565,7 +565,7 @@ class _MemoryMenu extends StatelessWidget {
             child: Text(
               'Close',
               style: TextStyle(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                color: theme.colorScheme.onSurface.withOpacity( 0.5),
               ),
             ),
           ),
