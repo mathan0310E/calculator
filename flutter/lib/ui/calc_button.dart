@@ -34,8 +34,8 @@ class CalcButton extends StatelessWidget {
             color: bgColor,
             child: InkWell(
               onTap: onPressed,
-              splashColor: fgColor.withValues(alpha: 0.15),
-              highlightColor: fgColor.withValues(alpha: 0.08),
+              splashColor: fgColor.withOpacity(0.15),
+              highlightColor: fgColor.withOpacity(0.08),
               child: Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 14),

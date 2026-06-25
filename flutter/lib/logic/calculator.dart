@@ -166,7 +166,7 @@ class CalculatorState {
         {
           final v = double.parse(current);
           if (v == 0) return;
-          expression = '$expression1/($cur)';
+          expression = '${expression}1/($cur)';
           current = _formatDouble(1.0 / v);
           isNewEntry = true;
         }
@@ -282,7 +282,7 @@ class CalculatorState {
       return null;
     }
 
-    while (expr.count('(') > expr.count(')')) {
+    while ('('.allMatches(expr).length > ')'.allMatches(expr).length) {
       expr += ')';
     }
 
