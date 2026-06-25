@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:calc_pro/core/constants/constants.dart';
 import 'package:calc_pro/core/utils/clipboard.dart';
+import 'package:calc_pro/engine/calculator_engine.dart';
 import 'package:calc_pro/core/utils/haptic.dart';
 import 'package:calc_pro/models/calculator_state.dart';
 import 'package:calc_pro/models/history_entry.dart';

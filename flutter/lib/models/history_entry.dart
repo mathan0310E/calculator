@@ -3,7 +3,7 @@ class HistoryEntry {
   final String result;
   final DateTime timestamp;
 
-  const HistoryEntry({
+  HistoryEntry({
     required this.expression,
     required this.result,
     DateTime? timestamp,
