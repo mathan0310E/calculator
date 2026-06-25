@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Calc Pro</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --bg: #1a1a2e;
+      --surface: #16213e;
+      --display: #0f3460;
+      --primary: #e94560;
+      --primary-hover: #ff6b81;
+      --secondary: #533483;
+      --accent: #0f3460;
+      --text: #fff;
+      --text-secondary: #a0a0b8;
+      --btn-number: #1a1a3e;
+      --btn-number-hover: #252555;
+      --btn-op: #2a2a5e;
+      --btn-op-hover: #353570;
+      --btn-eq: #e94560;
+      --btn-eq-hover: #ff6b81;
+      --btn-clear: #533483;
+      --btn-clear-hover: #6a44a0;
+      --shadow: rgba(0,0,0,0.4);
+      --gradient-start: #e94560;
+      --gradient-end: #533483;
+      --history-bg: #1e1e3a;
+      --scrollbar: #2a2a5e;
+    }
+    .light {
+      --bg: #f0f2f5;
+      --surface: #fff;
+      --display: #f8f9fa;
+      --primary: #e94560;
+      --primary-hover: #d63850;
+      --secondary: #7c4dff;
+      --accent: #e8eaf6;
+      --text: #1a1a2e;
+      --text-secondary: #666;
+      --btn-number: #f5f5f5;
+      --btn-number-hover: #e8e8e8;
+      --btn-op: #e8eaf6;
+      --btn-op-hover: #d5d8e8;
+      --btn-eq: #e94560;
+      --btn-eq-hover: #d63850;
+      --btn-clear: #7c4dff;
+      --btn-clear-hover: #6a3de0;
+      --shadow: rgba(0,0,0,0.1);
+      --gradient-start: #e94560;
+      --gradient-end: #7c4dff;
+      --history-bg: #f8f9fa;
+      --scrollbar: #ccc;
+    }
+    html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .app {
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 820px;
+      background: var(--surface);
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px var(--shadow);
+      transition: background 0.3s;
+    }
+    @media (min-width: 500px) {
+      .app { border-radius: 28px; height: 95vh; }
+      body { padding: 10px; }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px 8px;
+      flex-shrink: 0;
+    }
+    .header h1 { font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 0.5px; }
+    .header-actions { display: flex; gap: 6px; }
+    .header-btn {
+      background: var(--btn-op);
+      border: none;
+      color: var(--text);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .header-btn:active { transform: scale(0.9); }
+    .header-btn:hover { background: var(--btn-op-hover); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      padding: 0 20px 6px;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: var(--btn-op);
+      color: var(--text);
+    }
+
+    /* Display */
+    .display-wrap {
+      padding: 8px 20px 12px;
+      flex-shrink: 0;
+    }
+    .display {
+      background: var(--display);
+      border-radius: 16px;
+      padding: 16px 20px;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .expression {
+      font-size: 14px;
+      color: var(--text-secondary);
+      min-height: 20px;
+      word-break: break-all;
+      text-align: right;
+      width: 100%;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .result {
+      font-size: 38px;
+      font-weight: 700;
+      word-break: break-all;
+      text-align: right;
+      width: 100%;
+      line-height: 1.2;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      transition: font-size 0.15s;
+    }
+    .result.small { font-size: 28px; }
+    .result.xsmall { font-size: 20px; }
+
+    /* Buttons */
+    .btn-area {
+      flex: 1;
+      padding: 6px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .btn-grid {
+      display: grid;
+      gap: 8px;
+      flex: 1;
+      align-content: stretch;
+    }
+    .btn-grid.basic { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); }
+    .btn-grid.scientific { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(6, 1fr); }
+    .btn-grid.hidden { display: none; }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .btn:active { transform: scale(0.92); }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.08);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .btn:active::after { opacity: 1; }
+    .btn-number { background: var(--btn-number); color: var(--text); }
+    .btn-number:hover { background: var(--btn-number-hover); }
+    .btn-op { background: var(--btn-op); color: var(--primary); }
+    .btn-op:hover { background: var(--btn-op-hover); }
+    .btn-eq {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: #fff;
+      font-size: 24px;
+    }
+    .btn-eq:hover { opacity: 0.9; }
+    .btn-clear { background: var(--btn-clear); color: #fff; }
+    .btn-clear:hover { background: var(--btn-clear-hover); }
+    .btn-func { background: var(--btn-op); color: var(--text-secondary); font-size: 14px; font-weight: 500; }
+    .btn-func:hover { background: var(--btn-op-hover); }
+    .btn-zero { grid-column: span 2; }
+    .btn-sci { font-size: 13px; }
+
+    /* History Panel */
+    .history-panel {
+      position: absolute;
+      top: 0; right: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--history-bg);
+      z-index: 10;
+      transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+      display: flex;
+      flex-direction: column;
+      border-radius: inherit;
+    }
+    .history-panel.open { right: 0; }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--btn-op);
+      flex-shrink: 0;
+    }
+    .history-header h2 { font-size: 18px; }
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .history-list::-webkit-scrollbar { width: 4px; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+    .history-item {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--btn-number);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .history-item:hover { background: var(--btn-number-hover); }
+    .history-item .h-expr { font-size: 12px; color: var(--text-secondary); }
+    .history-item .h-result { font-size: 18px; font-weight: 600; }
+    .history-empty { color: var(--text-secondary); text-align: center; padding: 40px 20px; font-size: 14px; }
+    .clear-history {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .clear-history:hover { background: var(--btn-number); }
+
+    /* Memory indicator */
+    .mem-indicator {
+      font-size: 10px;
+      color: var(--primary);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-align: right;
+      padding: 0 20px;
+      height: 0;
+      position: relative;
+      top: -4px;
+    }
+    .mem-indicator:empty { display: none; }
+
+    /* Toast */
+    .toast {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--btn-op);
+      color: var(--text);
+      padding: 10px 24px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 20;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Overlay */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      border-radius: inherit;
+    }
+    .overlay.show { opacity: 1; pointer-events: auto; }
+
+    @media (max-width: 400px) {
+      .btn { font-size: 17px; border-radius: 10px; }
+      .btn-grid { gap: 6px; }
+      .result { font-size: 32px; }
+      .display { padding: 12px 16px; min-height: 80px; }
+      .btn-sci { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <h1>Calc Pro</h1>
+    <div class="header-actions">
+      <button class="header-btn" id="memBtn" title="Memory">M</button>
+      <button class="header-btn" id="themeBtn" title="Toggle Theme">🌙</button>
+      <button class="header-btn" id="historyBtn" title="History">📋</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="basic">Basic</button>
+    <button class="tab" data-tab="scientific">Scientific</button>
+  </div>
+  <div class="mem-indicator" id="memIndicator"></div>
+  <div class="display-wrap">
+    <div class="display">
+      <div class="expression" id="expression"></div>
+      <div class="result" id="result">0</div>
+    </div>
+  </div>
+  <div class="btn-area">
+    <!-- Basic -->
+    <div class="btn-grid basic" id="basicGrid">
+      <button class="btn btn-clear" data-action="clear">AC</button>
+      <button class="btn btn-clear" data-action="backspace">⌫</button>
+      <button class="btn btn-op" data-action="percent">%</button>
+      <button class="btn btn-op" data-action="divide">÷</button>
+
+      <button class="btn btn-number" data-value="7">7</button>
+      <button class="btn btn-number" data-value="8">8</button>
+      <button class="btn btn-number" data-value="9">9</button>
+      <button class="btn btn-op" data-action="multiply">×</button>
+
+      <button class="btn btn-number" data-value="4">4</button>
+      <button class="btn btn-number" data-value="5">5</button>
+      <button class="btn btn-number" data-value="6">6</button>
+      <button class="btn btn-op" data-action="subtract">−</button>
+
+      <button class="btn btn-number" data-value="1">1</button>
+      <button class="btn btn-number" data-value="2">2</button>
+      <button class="btn btn-number" data-value="3">3</button>
+      <button class="btn btn-op" data-action="add">+</button>
+
+      <button class="btn btn-number" data-value="0">0</button>
+      <button class="btn btn-number" data-action="decimal">.</button>
+      <button class="btn btn-eq" data-action="equals">=</button>
+    </div>
+
+    <!-- Scientific -->
+    <div class="btn-grid scientific hidden" id="sciGrid">
+      <button class="btn btn-func btn-sci" data-action="sin">sin</button>
+      <button class="btn btn-func btn-sci" data-action="cos">cos</button>
+      <button class="btn btn-func btn-sci" data-action="tan">tan</button>
+      <button class="btn btn-func btn-sci" data-action="log">log</button>
+      <button class="btn btn-func btn-sci" data-action="ln">ln</button>
+
+      <button class="btn btn-func btn-sci" data-action="asin">sin⁻¹</button>
+      <button class="btn btn-func btn-sci" data-action="acos">cos⁻¹</button>
+      <button class="btn btn-func btn-sci" data-action="atan">tan⁻¹</button>
+      <button class="btn btn-func btn-sci" data-action="sqrt">√</button>
+      <button class="btn btn-func btn-sci" data-action="cbrt">∛</button>
+
+      <button class="btn btn-func btn-sci" data-action="square">x²</button>
+      <button class="btn btn-func btn-sci" data-action="cube">x³</button>
+      <button class="btn btn-func btn-sci" data-action="power">xʸ</button>
+      <button class="btn btn-func btn-sci" data-action="factorial">x!</button>
+      <button class="btn btn-func btn-sci" data-action="reciprocal">1/x</button>
+
+      <button class="btn btn-func btn-sci" data-action="pi">π</button>
+      <button class="btn btn-func btn-sci" data-action="e">e</button>
+      <button class="btn btn-func btn-sci" data-action="exp">eˣ</button>
+      <button class="btn btn-func btn-sci" data-action="tenx">10ˣ</button>
+      <button class="btn btn-func btn-sci" data-action="abs">|x|</button>
+
+      <button class="btn btn-clear" data-action="clear">AC</button>
+      <button class="btn btn-clear" data-action="backspace">⌫</button>
+      <button class="btn btn-op" data-action="percent">%</button>
+      <button class="btn btn-op" data-action="divide">÷</button>
+      <button class="btn btn-op" data-action="multiply">×</button>
+
+      <button class="btn btn-number" data-value="7">7</button>
+      <button class="btn btn-number" data-value="8">8</button>
+      <button class="btn btn-number" data-value="9">9</button>
+      <button class="btn btn-op" data-action="subtract">−</button>
+      <button class="btn btn-op" data-action="add">+</button>
+
+      <button class="btn btn-number" data-value="4">4</button>
+      <button class="btn btn-number" data-value="5">5</button>
+      <button class="btn btn-number" data-value="6">6</button>
+      <button class="btn btn-func btn-sci" data-action="lparen">(</button>
+      <button class="btn btn-func btn-sci" data-action="rparen">)</button>
+
+      <button class="btn btn-number" data-value="1">1</button>
+      <button class="btn btn-number" data-value="2">2</button>
+      <button class="btn btn-number" data-value="3">3</button>
+      <button class="btn btn-number" data-value="0" class="btn-zero">0</button>
+      <button class="btn btn-number" data-action="decimal">.</button>
+
+      <button class="btn btn-func btn-sci" data-action="negate">±</button>
+      <button class="btn btn-eq btn-sci" data-action="equals">=</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="history-panel" id="historyPanel">
+    <div class="history-header">
+      <h2>History</h2>
+      <button class="clear-history" id="clearHistory">Clear all</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // --- State ---
+  const state = {
+    expression: '',
+    current: '0',
+    memory: 0,
+    hasMemory: false,
+    history: [],
+    isNewEntry: true,
+    justEvaluated: false,
+    isRadian: false,
+    parenCount: 0,
+  };
+
+  // --- DOM refs ---
+  const $expr = document.getElementById('expression');
+  const $result = document.getElementById('result');
+  const $histBtn = document.getElementById('historyBtn');
+  const $histPanel = document.getElementById('historyPanel');
+  const $histList = document.getElementById('historyList');
+  const $clearHist = document.getElementById('clearHistory');
+  const $overlay = document.getElementById('overlay');
+  const $themeBtn = document.getElementById('themeBtn');
+  const $memBtn = document.getElementById('memBtn');
+  const $memInd = document.getElementById('memIndicator');
+  const $toast = document.getElementById('toast');
+  const $basic = document.getElementById('basicGrid');
+  const $sci = document.getElementById('sciGrid');
+  const $tabs = document.querySelectorAll('.tab');
+  const APP = document.getElementById('app');
+
+  let toastTimer = null;
+
+  // --- Utils ---
+  function formatNum(n) {
+    if (!isFinite(n)) return 'Error';
+    if (isNaN(n)) return 'Error';
+    const str = String(n);
+    if (str.includes('e')) return str;
+    const parts = str.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  }
+
+  function unformatNum(s) {
+    return s.replace(/,/g, '');
+  }
+
+  function isOp(c) {
+    return ['+', '−', '×', '÷', '^'].includes(c);
+  }
+
+  function lastChar(s) {
+    return s[s.length - 1] || '';
+  }
+
+  function opToJs(op) {
+    return { '+': '+', '−': '-', '×': '*', '÷': '/', '^': '**' }[op] || op;
+  }
+
+  // --- Display ---
+  function updateDisplay() {
+    const val = parseFloat(unformatNum(state.current));
+    if (String(state.current) === 'Error' || !isFinite(val) && val !== undefined) {
+      $result.textContent = state.current;
+    } else {
+      const n = parseFloat(state.current);
+      if (n > 999999999 || n < -999999999 || (String(n).includes('e'))) {
+        $result.textContent = n.toExponential(6);
+      } else {
+        $result.textContent = formatNum(state.current);
+      }
+    }
+    const len = $result.textContent.length;
+    $result.classList.toggle('small', len > 12);
+    $result.classList.toggle('xsmall', len > 18);
+    $expr.textContent = state.expression;
+    $memInd.textContent = state.hasMemory ? 'M' : '';
+  }
+
+  // --- Toast ---
+  function showToast(msg) {
+    $toast.textContent = msg;
+    $toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => $toast.classList.remove('show'), 2000);
+  }
+
+  // --- History ---
+  function saveToHistory(expr, result) {
+    state.history.unshift({ expr, result, ts: Date.now() });
+    if (state.history.length > 100) state.history.pop();
+    renderHistory();
+    try { localStorage.setItem('calcHistory', JSON.stringify(state.history)); } catch {}
+  }
+
+  function renderHistory() {
+    if (state.history.length === 0) {
+      $histList.innerHTML = '<div class="history-empty">No calculations yet</div>';
+      return;
+    }
+    $histList.innerHTML = state.history.map((h, i) =>
+      `<div class="history-item" data-idx="${i}">
+        <div class="h-expr">${h.expr}</div>
+        <div class="h-result">${h.result}</div>
+      </div>`
+    ).join('');
+  }
+
+  function loadHistory() {
+    try {
+      const d = localStorage.getItem('calcHistory');
+      if (d) { state.history = JSON.parse(d); renderHistory(); }
+    } catch {}
+  }
+
+  // --- Evaluation ---
+  function evaluate(expr) {
+    let sanitized = expr;
+    sanitized = sanitized.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/π/g, `*${Math.PI}`).replace(/e(?![xp])/g, `*${Math.E}`);
+    sanitized = sanitized.replace(/\^/g, '**');
+    sanitized = sanitized.replace(/(\d)\(/g, '$1*(').replace(/\)(\d)/g, ')*$1').replace(/\)\(/g, ')*(');
+
+    sanitized = sanitized.replace(/(?<!\w)sin\(/g, 'Math.sin(')
+      .replace(/(?<!\w)cos\(/g, 'Math.cos(')
+      .replace(/(?<!\w)tan\(/g, 'Math.tan(')
+      .replace(/(?<!\w)asin\(/g, 'Math.asin(')
+      .replace(/(?<!\w)acos\(/g, 'Math.acos(')
+      .replace(/(?<!\w)atan\(/g, 'Math.atan(')
+      .replace(/(?<!\w)log\(/g, 'Math.log10(')
+      .replace(/(?<!\w)ln\(/g, 'Math.log(')
+      .replace(/(?<!\w)sqrt\(/g, 'Math.sqrt(')
+      .replace(/(?<!\w)cbrt\(/g, 'Math.cbrt(')
+      .replace(/(?<!\w)abs\(/g, 'Math.abs(')
+      .replace(/(?<!\w)exp\(/g, 'Math.exp(')
+      .replace(/Math\.(sin|cos|tan|asin|acos|atan)\(/g, (m) => {
+        if (state.isRadian) return m;
+        return m.replace('Math.', 'Math.DEG_');
+      });
+
+    if (!state.isRadian) {
+      Math.DEG_sin = (x) => Math.sin(x * Math.PI / 180);
+      Math.DEG_cos = (x) => Math.cos(x * Math.PI / 180);
+      Math.DEG_tan = (x) => Math.tan(x * Math.PI / 180);
+      Math.DEG_asin = (x) => Math.asin(x) * 180 / Math.PI;
+      Math.DEG_acos = (x) => Math.acos(x) * 180 / Math.PI;
+      Math.DEG_atan = (x) => Math.atan(x) * 180 / Math.PI;
+    }
+
+    try {
+      // Safety check: only allow safe characters
+      if (/[a-zA-Z$_]/g.test(sanitized.replace(/Math\.\w+/g, ''))) throw new Error('Invalid');
+      const result = Function(`"use strict"; return (${sanitized})`)();
+      if (typeof result !== 'number') throw new Error('Not a number');
+      return result;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function calculate() {
+    let expr = state.expression;
+    if (!expr) { state.current = '0'; state.isNewEntry = true; updateDisplay(); return; }
+
+    // Auto-close parens
+    let open = (expr.match(/\(/g) || []).length;
+    let close = (expr.match(/\)/g) || []).length;
+    while (close < open) { expr += ')'; close++; }
+
+    // Ensure it ends with a number or paren
+    const last = lastChar(expr);
+    if (isOp(last) || last === '(' || last === '') { return; }
+
+    const result = evaluate(expr);
+    if (result === null || !isFinite(result)) {
+      state.current = 'Error';
+      state.expression = expr;
+      updateDisplay();
+      return;
+    }
+
+    const resultStr = String(parseFloat(result.toFixed(12)));
+    saveToHistory(expr + ' =', formatNum(resultStr));
+    state.expression = expr;
+    state.current = resultStr;
+    state.isNewEntry = true;
+    state.justEvaluated = true;
+    updateDisplay();
+  }
+
+  // --- Input handling ---
+  function inputValue(val) {
+    if (state.justEvaluated && !isOp(val)) {
+      state.expression = '';
+      state.current = '0';
+      state.justEvaluated = false;
+    }
+    if (state.isNewEntry) {
+      state.current = val;
+      state.isNewEntry = false;
+    } else {
+      if (state.current === '0' && val !== '.') {
+        state.current = val;
+      } else {
+        state.current += val;
+      }
+    }
+    updateDisplay();
+  }
+
+  function inputDecimal() {
+    if (state.justEvaluated) {
+      state.expression = '';
+      state.current = '0.';
+      state.justEvaluated = false;
+      state.isNewEntry = false;
+      updateDisplay();
+      return;
+    }
+    if (state.isNewEntry) {
+      state.current = '0.';
+      state.isNewEntry = false;
+      updateDisplay();
+      return;
+    }
+    if (!state.current.includes('.')) {
+      state.current += '.';
+    }
+    updateDisplay();
+  }
+
+  function inputOperator(op) {
+    state.justEvaluated = false;
+    state.isNewEntry = false;
+    const displayOp = { '+': '+', '-': '−', '*': '×', '/': '÷', '^': '^', '%': '%' }[op] || op;
+    const exprOp = { '+': '+', '-': '-', '*': '×', '/': '÷', '^': '^', '%': '%' }[op] || op;
+
+    let expr = state.expression;
+    if (state.current !== '0' && !state.isNewEntry) {
+      if (expr && lastChar(expr) === ')') {
+        expr += ' ' + exprOp;
+      } else {
+        expr += unformatNum(state.current);
+      }
+    }
+
+    // Replace trailing operator
+    const last = lastChar(expr);
+    if (isOp(last) || last === '(' || last === '') {
+      if (isOp(last)) {
+        expr = expr.slice(0, -1).trim();
+      }
+    }
+
+    if (op === '%') {
+      const val = parseFloat(state.current) / 100;
+      state.current = String(val);
+      if (expr) {
+        expr += unformatNum(state.current);
+      }
+      state.expression = expr + displayOp;
+      updateDisplay();
+      state.isNewEntry = true;
+      return;
+    }
+
+    expr += ' ' + exprOp + ' ';
+    state.expression = expr;
+    state.current = '0';
+    state.isNewEntry = true;
+    updateDisplay();
+  }
+
+  function inputFunc(fn) {
+    state.justEvaluated = false;
+    let expr = state.expression;
+    const cur = unformatNum(state.current);
+
+    switch (fn) {
+      case 'pi':
+        if (!state.isNewEntry && state.current !== '0') {
+          expr += cur;
+        }
+        expr += 'π';
+        state.expression = expr;
+        state.current = String(Math.PI);
+        state.isNewEntry = true;
+        break;
+      case 'e':
+        if (!state.isNewEntry && state.current !== '0') {
+          expr += cur;
+        }
+        expr += 'e';
+        state.expression = expr;
+        state.current = String(Math.E);
+        state.isNewEntry = true;
+        break;
+      case 'square':
+        if (state.current !== '0' || !state.isNewEntry) {
+          const v = parseFloat(state.current);
+          const r = v * v;
+          expr += cur + '²';
+          state.expression = expr;
+          state.current = String(r);
+          state.isNewEntry = true;
+        }
+        break;
+      case 'cube':
+        if (state.current !== '0' || !state.isNewEntry) {
+          const v = parseFloat(state.current);
+          const r = v * v * v;
+          expr += cur + '³';
+          state.expression = expr;
+          state.current = String(r);
+          state.isNewEntry = true;
+        }
+        break;
+      case 'sqrt':
+        if (state.current !== '0' || !state.isNewEntry) {
+          expr += '√(' + cur + ')';
+          state.expression = expr;
+          state.current = String(Math.sqrt(parseFloat(state.current)));
+          state.isNewEntry = true;
+        }
+        break;
+      case 'cbrt':
+        if (state.current !== '0' || !state.isNewEntry) {
+          expr += '∛(' + cur + ')';
+          state.expression = expr;
+          state.current = String(Math.cbrt(parseFloat(state.current)));
+          state.isNewEntry = true;
+        }
+        break;
+      case 'reciprocal':
+        if (state.current !== '0' || !state.isNewEntry) {
+          const v = parseFloat(state.current);
+          if (v === 0) { showToast('Cannot divide by zero'); return; }
+          expr += '1/(' + cur + ')';
+          state.expression = expr;
+          state.current = String(1 / v);
+          state.isNewEntry = true;
+        }
+        break;
+      case 'factorial':
+        if (state.current !== '0' || !state.isNewEntry) {
+          const v = parseFloat(state.current);
+          if (v < 0 || !Number.isInteger(v)) { showToast('Integer >= 0 only'); return; }
+          let f = 1;
+          for (let i = 2; i <= v; i++) f *= i;
+          expr += cur + '!';
+          state.expression = expr;
+          state.current = String(f);
+          state.isNewEntry = true;
+        }
+        break;
+      case 'negate':
+        state.current = String(-parseFloat(state.current));
+        updateDisplay();
+        return;
+      case 'power':
+        inputOperator('^');
+        return;
+      case 'sin': case 'cos': case 'tan':
+      case 'asin': case 'acos': case 'atan':
+      case 'log': case 'ln': case 'exp': case 'tenx':
+      case 'abs':
+        const fname = { sin:'sin', cos:'cos', tan:'tan', asin:'asin', acos:'acos', atan:'atan', log:'log', ln:'ln', exp:'exp', tenx:'10ˣ', abs:'abs' }[fn];
+        const jsFn = { tenx:'exp' }[fn] || fn;
+        if (state.isNewEntry || state.current === '0') {
+          // Apply to current
+          const v = parseFloat(state.current);
+          let r;
+          if (fn === 'tenx') {
+            r = Math.pow(10, v);
+          } else if (fn === 'exp') {
+            r = Math.exp(v);
+          } else if (fn === 'log') {
+            r = Math.log10(v);
+          } else if (fn === 'ln') {
+            r = Math.log(v);
+          } else if (fn === 'abs') {
+            r = Math.abs(v);
+          } else if (fn === 'sin') {
+            r = state.isRadian ? Math.sin(v) : Math.sin(v * Math.PI / 180);
+          } else if (fn === 'cos') {
+            r = state.isRadian ? Math.cos(v) : Math.cos(v * Math.PI / 180);
+          } else if (fn === 'tan') {
+            r = state.isRadian ? Math.tan(v) : Math.tan(v * Math.PI / 180);
+          } else if (fn === 'asin') {
+            r = state.isRadian ? Math.asin(v) : Math.asin(v) * 180 / Math.PI;
+          } else if (fn === 'acos') {
+            r = state.isRadian ? Math.acos(v) : Math.acos(v) * 180 / Math.PI;
+          } else if (fn === 'atan') {
+            r = state.isRadian ? Math.atan(v) : Math.atan(v) * 180 / Math.PI;
+          } else {
+            r = v;
+          }
+          expr += fname + '(' + cur + ')';
+          state.expression = expr;
+          state.current = String(r);
+          state.isNewEntry = true;
+        } else {
+          // Apply to current
+          const v = parseFloat(state.current);
+          let r;
+          if (fn === 'tenx') r = Math.pow(10, v);
+          else if (fn === 'exp') r = Math.exp(v);
+          else if (fn === 'log') r = Math.log10(v);
+          else if (fn === 'ln') r = Math.log(v);
+          else if (fn === 'abs') r = Math.abs(v);
+          else if (fn === 'sin') r = state.isRadian ? Math.sin(v) : Math.sin(v * Math.PI / 180);
+          else if (fn === 'cos') r = state.isRadian ? Math.cos(v) : Math.cos(v * Math.PI / 180);
+          else if (fn === 'tan') r = state.isRadian ? Math.tan(v) : Math.tan(v * Math.PI / 180);
+          else if (fn === 'asin') r = state.isRadian ? Math.asin(v) : Math.asin(v) * 180 / Math.PI;
+          else if (fn === 'acos') r = state.isRadian ? Math.acos(v) : Math.acos(v) * 180 / Math.PI;
+          else if (fn === 'atan') r = state.isRadian ? Math.atan(v) : Math.atan(v) * 180 / Math.PI;
+          else r = v;
+          expr += fname + '(' + cur + ')';
+          state.expression = expr;
+          state.current = String(r);
+          state.isNewEntry = true;
+        }
+        break;
+    }
+    updateDisplay();
+  }
+
+  function inputLparen() {
+    if (state.justEvaluated) {
+      state.expression = '';
+      state.current = '0';
+      state.justEvaluated = false;
+    }
+    state.expression += '(';
+    state.parenCount++;
+    updateDisplay();
+  }
+
+  function inputRparen() {
+    if (state.parenCount <= 0) return;
+    state.expression += ')';
+    state.parenCount--;
+    updateDisplay();
+  }
+
+  function clearAll() {
+    state.expression = '';
+    state.current = '0';
+    state.isNewEntry = true;
+    state.justEvaluated = false;
+    state.parenCount = 0;
+    updateDisplay();
+  }
+
+  function backspace() {
+    if (state.justEvaluated) { clearAll(); return; }
+    if (state.isNewEntry) { return; }
+    if (state.current.length > 1) {
+      state.current = state.current.slice(0, -1);
+    } else {
+      state.current = '0';
+      state.isNewEntry = true;
+    }
+    updateDisplay();
+  }
+
+  function negate() {
+    state.current = String(-parseFloat(state.current));
+    updateDisplay();
+  }
+
+  // --- Memory ---
+  function memClear() { state.hasMemory = false; state.memory = 0; updateDisplay(); showToast('Memory cleared'); }
+  function memRecall() {
+    if (!state.hasMemory) { showToast('Memory empty'); return; }
+    state.current = String(state.memory); state.isNewEntry = true; state.justEvaluated = false; updateDisplay();
+  }
+  function memAdd() {
+    const v = parseFloat(state.current);
+    if (isNaN(v)) return;
+    state.memory += v; state.hasMemory = true; updateDisplay(); showToast('Memory + ' + formatNum(String(v)));
+  }
+  function memSubtract() {
+    const v = parseFloat(state.current);
+    if (isNaN(v)) return;
+    state.memory -= v; state.hasMemory = true; updateDisplay(); showToast('Memory − ' + formatNum(String(v)));
+  }
+  function memStore() {
+    const v = parseFloat(state.current);
+    if (isNaN(v)) return;
+    state.memory = v; state.hasMemory = true; updateDisplay(); showToast('Memory = ' + formatNum(String(v)));
+  }
+
+  // --- Button handler ---
+  function handleClick(e) {
+    const btn = e.target.closest('.btn');
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const value = btn.dataset.value;
+
+    if (value !== undefined) {
+      inputValue(value);
+      return;
+    }
+
+    switch (action) {
+      case 'clear': clearAll(); break;
+      case 'backspace': backspace(); break;
+      case 'decimal': inputDecimal(); break;
+      case 'equals': calculate(); break;
+      case 'add': inputOperator('+'); break;
+      case 'subtract': inputOperator('-'); break;
+      case 'multiply': inputOperator('*'); break;
+      case 'divide': inputOperator('/'); break;
+      case 'percent': inputOperator('%'); break;
+      case 'power': inputOperator('^'); break;
+      case 'negate': negate(); break;
+      case 'lparen': inputLparen(); break;
+      case 'rparen': inputRparen(); break;
+      case 'pi': case 'e': case 'square': case 'cube': case 'sqrt':
+      case 'cbrt': case 'reciprocal': case 'factorial': case 'sin':
+      case 'cos': case 'tan': case 'asin': case 'acos': case 'atan':
+      case 'log': case 'ln': case 'exp': case 'tenx': case 'abs':
+        inputFunc(action); break;
+      default: break;
+    }
+  }
+
+  // --- Keyboard ---
+  document.addEventListener('keydown', (e) => {
+    const key = e.key;
+    if (key >= '0' && key <= '9') { inputValue(key); e.preventDefault(); return; }
+    switch (key) {
+      case '.': inputDecimal(); e.preventDefault(); break;
+      case '+': inputOperator('+'); e.preventDefault(); break;
+      case '-': inputOperator('-'); e.preventDefault(); break;
+      case '*': inputOperator('*'); e.preventDefault(); break;
+      case '/': inputOperator('/'); e.preventDefault(); break;
+      case '%': inputOperator('%'); e.preventDefault(); break;
+      case 'Enter': case '=': calculate(); e.preventDefault(); break;
+      case 'Backspace': backspace(); e.preventDefault(); break;
+      case 'Escape': clearAll(); e.preventDefault(); break;
+      case '(': inputLparen(); e.preventDefault(); break;
+      case ')': inputRparen(); e.preventDefault(); break;
+      case '^': inputOperator('^'); e.preventDefault(); break;
+    }
+  });
+
+  // --- History toggle ---
+  $histBtn.addEventListener('click', () => {
+    $histPanel.classList.toggle('open');
+    $overlay.classList.toggle('show');
+  });
+  $overlay.addEventListener('click', () => {
+    $histPanel.classList.remove('open');
+    $overlay.classList.remove('show');
+  });
+  $clearHist.addEventListener('click', () => {
+    state.history = [];
+    renderHistory();
+    localStorage.removeItem('calcHistory');
+    showToast('History cleared');
+  });
+  $histList.addEventListener('click', (e) => {
+    const item = e.target.closest('.history-item');
+    if (!item) return;
+    const idx = parseInt(item.dataset.idx);
+    const h = state.history[idx];
+    if (h) {
+      const res = unformatNum(h.result);
+      state.current = res;
+      state.expression = h.expr.split(' =')[0];
+      state.isNewEntry = true;
+      state.justEvaluated = false;
+      updateDisplay();
+      $histPanel.classList.remove('open');
+      $overlay.classList.remove('show');
+    }
+  });
+
+  // --- Memory menu ---
+  let memMenuOpen = false;
+  let memMenuEl = null;
+  $memBtn.addEventListener('click', () => {
+    if (memMenuEl) { memMenuEl.remove(); memMenuOpen = false; memMenuEl = null; return; }
+    const menu = document.createElement('div');
+    menu.style.cssText = `
+      position: absolute; top: 50px; right: 20px; background: var(--surface);
+      border-radius: 12px; box-shadow: 0 8px 32px var(--shadow); z-index: 30;
+      overflow: hidden; border: 1px solid var(--btn-op);
+    `;
+    const items = [
+      { label: 'MC', fn: memClear },
+      { label: 'MR', fn: memRecall },
+      { label: 'M+', fn: memAdd },
+      { label: 'M−', fn: memSubtract },
+      { label: 'MS', fn: memStore },
+    ];
+    items.forEach(({label, fn}) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.style.cssText = `
+        display: block; width: 100%; padding: 12px 24px; border: none;
+        background: none; color: var(--text); font-size: 15px; font-weight: 500;
+        cursor: pointer; text-align: left; transition: background 0.15s;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+      `;
+      b.addEventListener('mouseenter', () => b.style.background = 'var(--btn-number)');
+      b.addEventListener('mouseleave', () => b.style.background = 'none');
+      b.addEventListener('click', (e) => { e.stopPropagation(); fn(); menu.remove(); memMenuOpen = false; memMenuEl = null; });
+      menu.appendChild(b);
+    });
+    APP.appendChild(menu);
+    memMenuEl = menu;
+    memMenuOpen = true;
+    const close = (e) => { if (!menu.contains(e.target) && e.target !== $memBtn) { menu.remove(); memMenuOpen = false; memMenuEl = null; document.removeEventListener('click', close); } };
+    setTimeout(() => document.addEventListener('click', close), 10);
+  });
+
+  // --- Theme ---
+  let dark = true;
+  $themeBtn.textContent = '🌙';
+  $themeBtn.addEventListener('click', () => {
+    dark = !dark;
+    document.documentElement.classList.toggle('light', !dark);
+    $themeBtn.textContent = dark ? '🌙' : '☀️';
+    try { localStorage.setItem('calcTheme', dark ? 'dark' : 'light'); } catch {}
+  });
+
+  // --- Tabs ---
+  $tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      $tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      $basic.classList.toggle('hidden', tab.dataset.tab === 'scientific');
+      $sci.classList.toggle('hidden', tab.dataset.tab === 'basic');
+    });
+  });
+
+  // --- Init ---
+  loadHistory();
+  try {
+    const saved = localStorage.getItem('calcTheme');
+    if (saved === 'light') {
+      dark = false;
+      document.documentElement.classList.add('light');
+      $themeBtn.textContent = '☀️';
+    }
+  } catch {}
+  updateDisplay();
+
+  document.querySelector('.btn-area').addEventListener('click', handleClick);
+})();
+</script>
+</body>
+</html>
