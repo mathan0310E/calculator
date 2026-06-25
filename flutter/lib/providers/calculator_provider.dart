@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:calc_pro/engine/calculator_engine.dart';
 import 'package:calc_pro/models/calculator_state.dart';
@@ -126,15 +127,15 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
         _addToExpression('e');
         state = state.copyWith(currentInput: '2.718281828459045', isNewEntry: true);
       case 'square':
-        var v = double.tryParse(cur) ?? 0;
         _addToExpression('${cur}²');
-        state = state.copyWith(currentInput: (v * v).toString(), isNewEntry: true);
+        state = state.copyWith(currentInput: ((double.tryParse(cur) ?? 0) * (double.tryParse(cur) ?? 0)).toString(), isNewEntry: true);
       case 'cube':
-        v = double.tryParse(cur) ?? 0;
         _addToExpression('${cur}³');
-        state = state.copyWith(currentInput: (v * v * v).toString(), isNewEntry: true);
+        state = state.copyWith(currentInput: ((double.tryParse(cur) ?? 0) * (double.tryParse(cur) ?? 0) * (double.tryParse(cur) ?? 0)).toString(), isNewEntry: true);
       case 'tenx':
-        inputFunction('exp');
+        _addToExpression('10^($cur)');
+        final tx = double.tryParse(cur) ?? 0;
+        state = state.copyWith(currentInput: math.pow(10, tx).toString(), isNewEntry: true);
       case 'sqrt':
       case 'cbrt':
       case 'sin':
@@ -156,17 +157,17 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
         }
       case 'factorial':
         _addToExpression('${cur}!');
-        v = double.tryParse(cur) ?? 0;
-        if (v >= 0 && v == v.roundToDouble()) {
+        final fv = double.tryParse(cur) ?? 0;
+        if (fv >= 0 && fv == fv.roundToDouble()) {
           int f = 1;
-          for (int i = 2; i <= v.round(); i++) f *= i;
+          for (int i = 2; i <= fv.round(); i++) f *= i;
           state = state.copyWith(currentInput: f.toString(), isNewEntry: true);
         }
       case 'reciprocal':
         _addToExpression('1/($cur)');
-        v = double.tryParse(cur) ?? 0;
-        if (v != 0) {
-          state = state.copyWith(currentInput: (1 / v).toString(), isNewEntry: true);
+        final rv = double.tryParse(cur) ?? 0;
+        if (rv != 0) {
+          state = state.copyWith(currentInput: (1 / rv).toString(), isNewEntry: true);
         } else {
           state = state.copyWith(error: 'Cannot divide by zero');
         }
