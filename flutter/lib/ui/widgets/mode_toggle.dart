@@ -7,6 +7,7 @@ class ModeToggle extends StatelessWidget {
   final ValueChanged<CalculatorMode> onChanged;
   final bool isRadian;
   final VoidCallback onAngleToggle;
+  final VoidCallback? onHistoryTap;
 
   const ModeToggle({
     super.key,
@@ -14,6 +15,7 @@ class ModeToggle extends StatelessWidget {
     required this.onChanged,
     required this.isRadian,
     required this.onAngleToggle,
+    this.onHistoryTap,
   });
 
   @override
@@ -112,7 +114,7 @@ class ModeToggle extends StatelessWidget {
             onAngleToggle,
           ),
           const SizedBox(width: 6),
-          _iconButton(context, Icons.history, () => onChanged(currentMode)),
+          _iconButton(context, Icons.history, () => onHistoryTap?.call()),
         ],
       ),
     );

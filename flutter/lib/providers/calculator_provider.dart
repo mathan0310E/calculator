@@ -57,8 +57,8 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
 
   void inputOperator(String op) {
     final displayOp = _displayOp(op);
-    final exprOp = op;
 
+    final wasJustEvaluated = state.justEvaluated;
     if (state.justEvaluated) {
       state = state.copyWith(
         justEvaluated: false,
@@ -67,7 +67,9 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
     }
 
     String expr = state.expression;
-    if (!state.isNewEntry && state.currentInput != '0') {
+    if (wasJustEvaluated) {
+      expr = state.currentInput;
+    } else if (!state.isNewEntry && state.currentInput != '0') {
       if (expr.isNotEmpty && expr.endsWith(')')) {
         expr += ' $displayOp';
       } else {
@@ -89,20 +91,34 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
   }
 
   void inputFunction(String fn) {
-    if (state.justEvaluated) {
-      state = state.copyWith(
-        expression: '',
-        currentInput: fn == 'pi' ? '3.141592653589793' : '2.718281828459045',
-        justEvaluated: false,
-        isNewEntry: true,
-        result: '',
-      );
-      return;
-    }
-
     final cur = state.currentInput;
 
     switch (fn) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        inputDigit(fn);
+      case 'decimal':
+        inputDecimal();
+      case 'add':
+        inputOperator('+');
+      case 'subtract':
+        inputOperator('-');
+      case 'multiply':
+        inputOperator('*');
+      case 'divide':
+        inputOperator('/');
+      case 'percent':
+        inputOperator('%');
+      case 'power':
+        inputOperator('^');
       case 'pi':
         _addToExpression('π');
         state = state.copyWith(currentInput: '3.141592653589793', isNewEntry: true);
@@ -110,13 +126,15 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
         _addToExpression('e');
         state = state.copyWith(currentInput: '2.718281828459045', isNewEntry: true);
       case 'square':
-        final v = double.tryParse(cur) ?? 0;
+        var v = double.tryParse(cur) ?? 0;
         _addToExpression('${cur}²');
         state = state.copyWith(currentInput: (v * v).toString(), isNewEntry: true);
       case 'cube':
-        final v = double.tryParse(cur) ?? 0;
+        v = double.tryParse(cur) ?? 0;
         _addToExpression('${cur}³');
         state = state.copyWith(currentInput: (v * v * v).toString(), isNewEntry: true);
+      case 'tenx':
+        inputFunction('exp');
       case 'sqrt':
       case 'cbrt':
       case 'sin':
@@ -138,7 +156,7 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
         }
       case 'factorial':
         _addToExpression('${cur}!');
-        final v = double.tryParse(cur) ?? 0;
+        v = double.tryParse(cur) ?? 0;
         if (v >= 0 && v == v.roundToDouble()) {
           int f = 1;
           for (int i = 2; i <= v.round(); i++) f *= i;
@@ -146,7 +164,7 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
         }
       case 'reciprocal':
         _addToExpression('1/($cur)');
-        final v = double.tryParse(cur) ?? 0;
+        v = double.tryParse(cur) ?? 0;
         if (v != 0) {
           state = state.copyWith(currentInput: (1 / v).toString(), isNewEntry: true);
         } else {
@@ -180,7 +198,13 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
   }
 
   void _addToExpression(String part) {
-    if (!state.isNewEntry && state.currentInput != '0') {
+    if (state.justEvaluated) {
+      state = state.copyWith(
+        expression: '${state.currentInput}$part',
+        justEvaluated: false,
+        isNewEntry: true,
+      );
+    } else if (!state.isNewEntry && state.currentInput != '0') {
       state = state.copyWith(expression: '${state.expression}${state.currentInput}$part', isNewEntry: true);
     } else {
       state = state.copyWith(expression: '${state.expression}$part', isNewEntry: true);

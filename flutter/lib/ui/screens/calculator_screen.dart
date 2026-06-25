@@ -124,6 +124,9 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       onAngleToggle: () {
                         ref.read(calculatorProvider.notifier).toggleAngleMode();
                       },
+                      onHistoryTap: () {
+                        ref.read(calculatorProvider.notifier).toggleHistory();
+                      },
                     ),
                     Expanded(
                       flex: orientation == Orientation.portrait ? 62 : 50,
