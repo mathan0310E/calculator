@@ -1,6 +1,13 @@
 # Calc Pro
 
-A full-featured mobile calculator built with **Kivy** for Android, with a web version also available.
+A full-featured calculator app built with **Flutter** (cross-platform) and **Kivy** (Android).
+
+| Platform | Tech | Build |
+|----------|------|-------|
+| Android / iOS / Web | Flutter | `flutter/` |
+| Android (legacy) | Kivy + Buildozer | `main.py` |
+| Web (legacy) | HTML/CSS/JS | `index.html` |
+| Terminal | Python | `term_calc.py` |
 
 ## Features
 
@@ -15,48 +22,62 @@ A full-featured mobile calculator built with **Kivy** for Android, with a web ve
 - **Number formatting** with thousands separators
 - **Keyboard support** (desktop)
 
-## Screenshots
+## Flutter App (recommended)
 
-Coming soon.
-
-## Tech Stack
-
-- **Python 3** with **Kivy** 2.2+ for the mobile/desktop app
-- **HTML/CSS/JS** for the web version (`index.html`)
-- **Buildozer** for Android APK packaging
-
-## Project Structure
-
-```
-calculator/
-├── main.py          # Kivy mobile/desktop app (1249 lines)
-├── curses_calc.py   # Terminal-based version (curses)
-├── term_calc.py     # Simple terminal calculator
-├── index.html       # Web-based calculator
-├── buildozer.spec   # Buildozer config for Android APK
-├── requirements.txt # Python dependencies
-└── .gitignore
+```bash
+cd flutter
+flutter pub get
+flutter run
 ```
 
-## Installation
+### Build APK (local)
 
-### Mobile/Desktop (Kivy)
+```bash
+flutter build apk --release
+# APK at build/app/outputs/flutter-apk/app-release.apk
+```
+
+### Download pre-built APK
+
+Every push to `main` builds the APK via GitHub Actions. Grab it from the [Actions tab](https://github.com/mathan0310E/calculator/actions).
+
+## Legacy Versions
+
+### Kivy (Python)
 
 ```bash
 pip install -r requirements.txt
 python main.py
 ```
 
-### Android APK (Buildozer)
+### Terminal
 
 ```bash
-pip install buildozer
-buildozer android debug
+python3 term_calc.py
 ```
 
 ### Web
 
 Open `index.html` in any modern browser.
+
+## Project Structure
+
+```
+calculator/
+├── flutter/               # Flutter cross-platform app
+│   ├── lib/
+│   │   ├── main.dart
+│   │   ├── logic/         # Calculator engine, history, themes
+│   │   └── ui/            # Screens and widgets
+│   └── pubspec.yaml
+├── main.py                # Kivy mobile/desktop app (legacy)
+├── curses_calc.py         # Terminal version (curses)
+├── term_calc.py           # Simple terminal calculator
+├── index.html             # Web-based calculator (legacy)
+├── buildozer.spec         # Buildozer config for Android APK
+├── requirements.txt       # Python dependencies
+└── .github/workflows/     # CI: automatic APK builds
+```
 
 ## Usage
 
@@ -64,7 +85,7 @@ Open `index.html` in any modern browser.
 - Toggle between **Basic** and **Scientific** tabs
 - Use **AC** to clear all, **⌫** to backspace
 - Press **±** to negate the current value
-- Long-press or tap **M** for memory functions
+- Tap **M** for memory functions
 - Tap **📋** to view calculation history
 - Toggle **🌙/☀️** for dark/light theme
 - Switch **DEG/RAD** for angle mode
